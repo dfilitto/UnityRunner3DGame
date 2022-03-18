@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class MoveLeft : MonoBehaviour
 {
-    private float speed = 10f;
-    // Start is called before the first frame update
+    private float LeftBound = -15;
+    //private float speed = 10f;
     void Start()
     {
-        
     }
-
-    // Update is called once per frame
     void Update()
     {
-        transform.Translate(Vector3.left * speed * Time.deltaTime);
+        if (GameController.gameOver) return;
+        transform.Translate(Vector3.left * GameController.speed * Time.deltaTime);
+        //destrói o obstáculo
+        if (transform.position.x < LeftBound && gameObject.CompareTag("Obstacles"))
+        {
+            Destroy(gameObject);
+        }
     }
 }
