@@ -15,8 +15,9 @@ public class SpawnManager : MonoBehaviour
     }
 
     private IEnumerator SpawnObstacles()
-    {      
-        while (GameController.gameOver == false)
+    {   
+        //GameController.gameOver == false   
+        while (true)
         {
             CreateObstacle();
             yield return new WaitForSeconds(GameController.timeToSpawn);

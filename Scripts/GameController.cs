@@ -11,16 +11,17 @@ public class GameController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        StartGame();
+    }
+    
+    void StartGame()
+    {
         GameController.gameOver = false;
+        GameController.speed = 13f;
+        GameController.timeToSpawn = 3f;
+        GameController.score = 0f;
         InvokeRepeating("ChangeDificult", 1f, 5f);
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     void ChangeDificult()
     {
         GameController.speed += 1;
