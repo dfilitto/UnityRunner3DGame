@@ -6,37 +6,37 @@ using UnityEngine.SceneManagement;
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody playerRG; //corpo rigido do player
-    private Animator playerAnim; //controla a animação do player
-    private AudioSource playerAudio; //controla o audio
+    private Animator playerAnim; //controla a animação
+    private AudioSource playerAudio; //toca os sons do player jump e hit
 
-    public float jumpForce = 10f; //força do pulo
-    public float gravityModifier = 1.5f; //gravidade do jogo
-    public bool isonGround = true; //verifica se o player estão no chão
     public ParticleSystem explosionParticle;
     public ParticleSystem dirtParticle;
+    public float jumpForce=10f; //força do pulo
+    public float gravityModifier = 1f; //gravidade do jogo
+    public bool isonGround = true; //verifica se o player estão no chão
     public AudioClip jumpSound;
     public AudioClip crashSound;
     // Start is called before the first frame update
     void Start()
     {
-        playerAnim = GetComponent<Animator>();
         playerRG = GetComponent<Rigidbody>();
+        playerAnim = GetComponent<Animator>();
         playerAudio = GetComponent<AudioSource>();
-        Physics.gravity = new Vector3(0f, -9.81f * gravityModifier, 0f);
+        Physics.gravity *= gravityModifier;
     }
 
     // Update is called once per frame
     void Update()
     {
-        //playerAnim.SetBool("Jump_b", isonGround);
-        if (Input.GetAxis("Jump") > 0 && isonGround && !GameController.gameOver)
+
+        float space = Input.GetAxis("Jump");
+        if (space!=0 && isonGround && !GameController.gameOver)
         {
-            playerAudio.PlayOneShot(jumpSound, 1.0f);
-            dirtParticle.Stop();
+            playerAudio.PlayOneShot(jumpSound);
+            playerAnim.SetTrigger("Jump_trig");
             playerRG.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isonGround = false;
-            //playerAnim.SetBool("Jump_b", true);
-            playerAnim.SetTrigger("Jump_trig"); //disparo o gatilho do pulo
+            dirtParticle.Stop();
         }
     }
 
@@ -45,22 +45,27 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isonGround = true;
-            //playerAnim.SetBool("Jump_b", false);
             dirtParticle.Play();
-        } else if (collision.gameObject.CompareTag("Obstacles"))
+        }else if (collision.gameObject.CompareTag("Obstacles"))
         {
-            GameController.gameOver = true;
-            playerAudio.PlayOneShot(crashSound, 1.0f);
+            //seta fim de jogo
+            GameController.gameOver = true; 
+            //seta animação de morte
+            playerAnim.SetBool("Death_b",true);
+            playerAnim.SetInteger("DeathType_int", 1);
+            //ativa a partícula
             explosionParticle.Play();
             dirtParticle.Stop();
-            playerAnim.SetBool("Death_b", true);
-            playerAnim.SetInteger("DeathType_int", 1);
-            Invoke("GameRestart", 5f);
+            //toca o som
+            playerAudio.PlayOneShot(crashSound,0.5f);
+            Invoke("GoGameOver",5f);
         }
     }
 
-    private void GameRestart()
+    void GoGameOver()
     {
-        SceneManager.LoadScene("MenuInicial");
+        //salvar os dados do jogo
+        GameController.SaveData();
+        SceneManager.LoadScene("GameOver");
     }
 }
